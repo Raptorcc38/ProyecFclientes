@@ -1,0 +1,62 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp">
+
+        <ImageView
+            android:id="@+id/ivFotoPerfil"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginBottom="16dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tvNombrePerfil"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Nombre"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            app:layout_constraintTop_toBottomOf="@id/ivFotoPerfil"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tvCalificacionPerfil"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Calificación:"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/tvNombrePerfil"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/tvTrabajosPerfil"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Trabajos realizados:"
+            app:layout_constraintTop_toBottomOf="@id/tvCalificacionPerfil"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="4dp"/>
+
+        <Button
+            android:id="@+id/btnContactar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Concretar cita"
+            app:layout_constraintTop_toBottomOf="@id/tvTrabajosPerfil"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="28dp"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.proyecfclientes.ui.fragments.LoginFragment"
+        android:label="Login">
+        <action
+            android:id="@+id/action_loginFragment_to_registroFragment"
+            app:destination="@id/registroFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_categoriasFragment"
+            app:destination="@id/categoriasFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/registroFragment"
+        android:name="com.example.proyecfclientes.ui.fragments.RegistroFragment"
+        android:label="Registro">
+        <action
+            android:id="@+id/action_registroFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/categoriasFragment"
+        android:name="com.example.proyecfclientes.ui.fragments.CategoriasFragment"
+        android:label="Categorías">
+        <action
+            android:id="@+id/action_categoriasFragment_to_misCitasFragment"
+            app:destination="@id/misCitasFragment" />
+        <action
+            android:id="@+id/action_categoriasFragment_to_trabajadoresFragment"
+            app:destination="@id/trabajadoresFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/misCitasFragment"
+        android:name="com.example.proyecfclientes.ui.fragments.MisCitasFragment"
+        android:label="Mis Citas" />
+
+    <fragment
+        android:id="@+id/trabajadoresFragment"
+        android:name="com.example.proyecfclientes.ui.fragments.TrabajadoresFragment"
+        android:label="Trabajadores">
+        <argument
+            android:name="categoriaId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_trabajadoresFragment_to_perfilTrabajadorFragment"
+            app:destination="@id/perfilTrabajadorFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/perfilTrabajadorFragment"
+        android:name="com.example.proyecfclientes.ui.fragments.PerfilTrabajadorFragment"
+        android:label="Perfil del trabajador">
+        <argument
+            android:name="trabajador"
+            app:argType="com.example.proyecfclientes.Data.modelo.Trabajador" />
+        <action
+            android:id="@+id/action_perfilTrabajadorFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.example.proyecfclientes.ui.fragments.ChatFragment"
+        android:label="Chat">
+        <argument
+            android:name="appointmentId"
+            app:argType="integer" />
+    </fragment>
+
+</navigation>
