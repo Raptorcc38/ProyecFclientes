@@ -103,5 +103,40 @@
         <argument
             android:name="citaId"
             app:argType="integer" />
+        <action
+            android:id="@+id/action_concretarCitaFragment_to_seleccionarUbicacionFragment"
+            app:destination="@id/seleccionarUbicacionFragment" />
+    </fragment>
+
+    <!-- Fragmento de selección de ubicación en mapa -->
+    <fragment
+        android:id="@+id/seleccionarUbicacionFragment"
+        android:name="com.example.proyecfclientes.ui.fragments.SeleccionarUbicacionFragment"
+        android:label="Seleccionar Ubicación">
+        <argument
+            android:name="appointmentId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_seleccionarUbicacionFragment_to_seleccionarFechaHoraFragment"
+            app:destination="@id/seleccionarFechaHoraFragment" />
+    </fragment>
+
+    <!-- Fragmento para elegir fecha y hora -->
+    <fragment
+        android:id="@+id/seleccionarFechaHoraFragment"
+        android:name="com.example.proyecfclientes.ui.fragments.SeleccionarFechaHoraFragment"
+        android:label="Seleccionar Fecha y Hora">
+        <argument
+            android:name="appointmentId"
+            app:argType="integer" />
+        <argument
+            android:name="latitud"
+            app:argType="string" />
+        <argument
+            android:name="longitud"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_seleccionarFechaHoraFragment_to_misCitasFragment"
+            app:destination="@id/misCitasFragment" />
     </fragment>
 </navigation>

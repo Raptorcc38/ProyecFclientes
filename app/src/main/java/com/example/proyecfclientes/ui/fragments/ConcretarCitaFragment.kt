@@ -65,29 +65,20 @@ class ConcretarCitaFragment : Fragment() {
         }
 
         // Botón para concretar cita
-        binding.btnConcretar.setOnClickListener {
-            val fecha = fechaSeleccionada
-            val hora = horaSeleccionada
-            // Aquí puedes obtener la ubicación real, por ahora ponemos unos valores fijos de ejemplo
-            val latitud = "-17.783531"
-            val longitud = "-63.1840307"
-            val citaId = arguments?.getInt("citaId") ?: 0 // O usa SafeArgs si lo tienes
-            val token = "Bearer ${Preferencias.getToken(requireContext())}"
-
-            if (fecha.isNullOrEmpty() || hora.isNullOrEmpty()) {
-                Toast.makeText(requireContext(), "Selecciona fecha y hora", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val request = ConcretarCitaRequest(
-                appointment_date = fecha,
-                appointment_time = hora,
-                latitude = latitud,
-                longitude = longitud
-            )
-
-            viewModel.concretarCita(token, citaId, request)
+        binding.btnConcretarCita.setOnClickListener {
+            // Mostrar diálogo de confirmación
+            AlertDialog.Builder(requireContext())
+                .setTitle("Concretar cita")
+                .setMessage("¿Está seguro que desea concretar una cita?")
+                .setPositiveButton("Sí") { _, _ ->
+                    // Navega al fragmento de seleccionar ubicación
+                    val action = ChatFragmentDirections.actionChatFragmentToSeleccionarUbicacionFragment(args.appointmentId)
+                    findNavController().navigate(action)
+                }
+                .setNegativeButton("No", null)
+                .show()
         }
+
 
         // Observa el resultado de la operación
         viewModel.resultadoConcretar.observe(viewLifecycleOwner) { response ->
