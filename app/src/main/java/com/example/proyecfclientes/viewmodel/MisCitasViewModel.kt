@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.proyecfclientes.Data.modelo.Cita
 import com.example.proyecfclientes.Data.requests.ConcretarCitaRequest
 import com.example.proyecfclientes.repository.RepositorioCitas
+import com.example.proyecfclientes.utils.Preferencias
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
@@ -16,19 +17,23 @@ class MisCitasViewModel(
 ) : AndroidViewModel(application) {
 
     val citas = MutableLiveData<List<Cita>?>()
+    val error = MutableLiveData<String?>()
     val resultadoConcretar = MutableLiveData<Response<Cita>?>()
 
-    // Obtener todas las citas del cliente
-    fun obtenerCitas(token: String) {
+    // Obtener todas las citas del cliente con token automáticamente
+    fun cargarCitas() {
         viewModelScope.launch {
             try {
+                val token = Preferencias.getToken(getApplication<Application>().applicationContext) ?: ""
                 val response = repo.obtenerCitas(token)
                 if (response.isSuccessful) {
                     citas.postValue(response.body())
                 } else {
+                    error.postValue("No se pudieron cargar las citas")
                     citas.postValue(null)
                 }
             } catch (e: Exception) {
+                error.postValue("Error de conexión al cargar citas")
                 citas.postValue(null)
             }
         }

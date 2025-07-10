@@ -41,9 +41,8 @@ class CitasAdapter(
 
     override fun getItemCount(): Int = citas.size
 
-    fun actualizarLista(nuevaLista: List<Cita>) {
-        citas = nuevaLista
+    fun actualizarLista(lista: List<Cita>) {
+        citas = lista
         notifyDataSetChanged()
     }
 }
-

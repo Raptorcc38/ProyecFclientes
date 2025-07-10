@@ -5,7 +5,6 @@
         android:id="@+id/tvMensaje"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/bubble_mensaje"
         android:padding="10dp"
         android:text="Mensaje"
         android:textSize="16sp"/>

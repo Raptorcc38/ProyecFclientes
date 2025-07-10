@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.proyecfclientes.Data.modelo.Cita
 import com.example.proyecfclientes.databinding.FragmentMisCitasBinding
 import com.example.proyecfclientes.network.ApiClient
 import com.example.proyecfclientes.repository.RepositorioCitas
@@ -26,7 +25,7 @@ class MisCitasFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentMisCitasBinding.inflate(inflater, container, false)
         val repo = RepositorioCitas(ApiClient.retrofit)
         val factory = com.example.proyecfclientes.viewmodel.MisCitasViewModelFactory(requireActivity().application, repo)
@@ -38,11 +37,12 @@ class MisCitasFragment : Fragment() {
                 findNavController().navigate(action)
             }
         }
+
         binding.recyclerViewCitas.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewCitas.adapter = adapter
 
         viewModel.citas.observe(viewLifecycleOwner) { lista ->
-            adapter.actualizarLista(lista)
+            adapter.actualizarLista(lista ?: emptyList())
         }
 
         viewModel.error.observe(viewLifecycleOwner) { errorMsg ->

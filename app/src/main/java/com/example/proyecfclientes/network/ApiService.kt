@@ -8,8 +8,7 @@ import retrofit2.http.*
 
 interface ApiService {
 
-    // ========== AUTENTICACIÓN ==========
-
+    // AUTENTICACIÓN
     @POST("client/login")
     suspend fun loginCliente(
         @Body request: LoginRequest
@@ -20,8 +19,7 @@ interface ApiService {
         @Body request: RegistroRequest
     ): Response<LoginResponse>
 
-    // ========== CATEGORÍAS ==========
-
+    // CATEGORÍAS
     @GET("categories")
     suspend fun obtenerCategorias(
         @Header("Authorization") token: String
@@ -33,8 +31,7 @@ interface ApiService {
         @Path("categoriaId") categoriaId: Int
     ): Response<List<Trabajador>>
 
-    // ========== CITAS (APPOINTMENTS) ==========
-
+    // CITAS
     @POST("appointments")
     suspend fun crearCita(
         @Header("Authorization") token: String,
@@ -59,31 +56,28 @@ interface ApiService {
         @Path("appointmentId") appointmentId: Int
     ): Response<Cita>
 
-    // ========== CHAT ==========
-
-    @GET("appointments/{citaId}/chats")
+    // CHAT (usa appointmentId para consistencia)
+    @GET("appointments/{appointmentId}/chats")
     suspend fun obtenerMensajesChat(
         @Header("Authorization") token: String,
-        @Path("citaId") citaId: Int
+        @Path("appointmentId") appointmentId: Int
     ): Response<List<Mensaje>>
 
-    @POST("appointments/{citaId}/chats")
+    @POST("appointments/{appointmentId}/chats")
     suspend fun enviarMensajeChat(
         @Header("Authorization") token: String,
-        @Path("citaId") citaId: Int,
+        @Path("appointmentId") appointmentId: Int,
         @Body request: MensajeRequest
     ): Response<Unit>
 
-    // ========== TRABAJADOR ==========
-
+    // TRABAJADOR
     @GET("workers/{trabajadorId}")
     suspend fun obtenerDetalleTrabajador(
         @Header("Authorization") token: String,
         @Path("trabajadorId") trabajadorId: Int
     ): Response<TrabajadorDetalle>
 
-    // ========== RESEÑAS Y REVIEW ==========
-
+    // REVIEW / RESEÑAS
     @POST("appointments/{appointmentId}/review")
     suspend fun enviarReview(
         @Header("Authorization") token: String,

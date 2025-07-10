@@ -77,19 +77,19 @@ class ChatFragment : Fragment() {
     private fun cargarInfoCita() {
         lifecycleScope.launch {
             try {
-                val token = Preferencias.getToken(requireContext())
+                val token = Preferencias.getToken(requireContext()) ?: ""
                 val response = withContext(Dispatchers.IO) {
                     apiService.obtenerCitaPorId("Bearer $token", args.appointmentId)
                 }
                 if (response.isSuccessful && response.body() != null) {
                     val cita = response.body()!!
-                    trabajadorNombre = cita.worker?.user?.name ?: ""
-                    trabajadorFoto = cita.worker?.picture_url
+                    val nombre = cita.worker?.user?.name.orEmpty() + " " + (cita.worker?.user?.last_name.orEmpty())
+                    val foto = cita.worker?.picture_url
                     receiverId = cita.worker?.user_id
 
-                    binding.tvNombreTrabajador.text = trabajadorNombre
+                    binding.tvNombreTrabajador.text = nombre.trim()
                     Glide.with(requireContext())
-                        .load(trabajadorFoto)
+                        .load(foto)
                         .placeholder(android.R.drawable.sym_def_app_icon)
                         .error(android.R.drawable.sym_def_app_icon)
                         .into(binding.ivFotoTrabajador)
@@ -101,6 +101,7 @@ class ChatFragment : Fragment() {
             }
         }
     }
+
 
     private fun cargarMensajes() {
         lifecycleScope.launch {
