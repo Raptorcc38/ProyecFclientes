@@ -13,7 +13,7 @@ class RepositorioChat {
         val token = Preferencias.getToken(context)
         return ApiClient.retrofit.obtenerMensajesChat(
             token = "Bearer $token",
-            citaId = appointmentId
+            appointmentId = appointmentId
         )
     }
 
@@ -22,7 +22,7 @@ class RepositorioChat {
         val body = MensajeRequest(message = mensaje, receiver_id = receiverId)
         return ApiClient.retrofit.enviarMensajeChat(
             token = "Bearer $token",
-            citaId = appointmentId,
+            appointmentId = appointmentId,
             request = body
         )
     }
