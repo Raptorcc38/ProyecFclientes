@@ -7,14 +7,14 @@ import retrofit2.Response
 
 class RepositorioChat {
     suspend fun getMensajes(appointmentId: Int, context: android.content.Context): Response<List<Mensaje>> {
-        val token = Preferencias.obtenerToken(context)
-        return ApiClient.retrofit.getMensajesCita(appointmentId, "Bearer $token")
+        val token = com.example.proyecfclientes.utils.Preferencias.getToken(context)
+        return ApiClient.retrofit.obtenerMensajesCita(token = "Bearer $token", appointmentId = appointmentId)
     }
 
     suspend fun enviarMensaje(appointmentId: Int, mensaje: String, context: android.content.Context): Response<Unit> {
-        val token = Preferencias.obtenerToken(context)
-        // Ajusta el receiver_id según tu lógica de usuario actual
-        val body = mapOf("message" to mensaje, "receiver_id" to 1)
-        return ApiClient.retrofit.enviarMensajeCita(appointmentId, "Bearer $token", body)
+        val token = com.example.proyecfclientes.utils.Preferencias.getToken(context)
+        // Solo envía el mensaje como String, sin receiver_id
+        val body = mapOf("message" to mensaje)
+        return ApiClient.retrofit.enviarMensajeCita(token = "Bearer $token", appointmentId = appointmentId, mensaje = body)
     }
 }

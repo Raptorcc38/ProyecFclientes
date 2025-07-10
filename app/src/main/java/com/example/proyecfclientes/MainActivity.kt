@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Recupera el token guardado y actualiza el TokenManager
-        val token = Preferencias.obtenerToken(this)
+        val token = Preferencias.getToken(this)
         TokenManager.token = token
 
         // Accede al NavController

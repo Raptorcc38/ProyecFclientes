@@ -1,16 +1,22 @@
 package com.example.proyecfclientes.repository
 
-import android.content.Context
 import com.example.proyecfclientes.Data.modelo.Cita
+import com.example.proyecfclientes.Data.requests.ConcretarCitaRequest
 import com.example.proyecfclientes.Data.requests.CrearCitaRequest
-import com.example.proyecfclientes.network.ApiClient
-import com.example.proyecfclientes.utils.Preferencias
+import com.example.proyecfclientes.network.ApiService
 import retrofit2.Response
 
-class RepositorioCitas {
-    suspend fun crearCita(workerId: Int, categorySelectedId: Int, context: Context): Response<Cita> {
-        val token = Preferencias.obtenerToken(context)
-        val body = CrearCitaRequest(workerId, categorySelectedId)
-        return ApiClient.retrofit.crearCita("Bearer $token", body)
+class RepositorioCitas(private val apiService: ApiService) {
+
+    suspend fun crearCita(token: String, request: CrearCitaRequest): Response<Cita> {
+        return apiService.crearCita(token, request)
+    }
+
+    suspend fun concretarCita(token: String, citaId: Int, request: ConcretarCitaRequest): Response<Cita> {
+        return apiService.concretarCita(token, citaId, request)
+    }
+
+    suspend fun obtenerCitas(token: String): Response<List<Cita>> {
+        return apiService.obtenerCitas(token)
     }
 }

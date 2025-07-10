@@ -4,4 +4,3 @@ data class CrearCitaRequest(
     val worker_id: Int,
     val category_selected_id: Int
 )
-

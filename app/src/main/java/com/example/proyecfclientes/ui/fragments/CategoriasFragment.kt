@@ -12,7 +12,6 @@ import com.example.proyecfclientes.databinding.FragmentCategoriasBinding
 import com.example.proyecfclientes.viewmodel.CategoriasViewModel
 import com.example.proyecfclientes.ui.adapters.CategoriasAdapter
 import com.example.proyecfclientes.Data.modelo.Categoria
-import com.example.proyecfclientes.R
 
 class CategoriasFragment : Fragment() {
 
@@ -25,26 +24,24 @@ class CategoriasFragment : Fragment() {
         binding = FragmentCategoriasBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[CategoriasViewModel::class.java]
 
-        // Configurar RecyclerView
+        // Adapter con función lambda que navega usando SafeArgs
         adapter = CategoriasAdapter(emptyList()) { categoria ->
-            val bundle = Bundle()
-            bundle.putInt("categoriaId", categoria.id)
-            findNavController().navigate(R.id.action_categoriasFragment_to_trabajadoresFragment, bundle)
+            val action = CategoriasFragmentDirections.actionCategoriasFragmentToTrabajadoresFragment(categoria.id)
+            findNavController().navigate(action)
         }
-
         binding.recyclerViewCategorias.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewCategorias.adapter = adapter
-
-        // Botón "Mis Citas"
-        binding.btnMisCitas.setOnClickListener {
-            findNavController().navigate(R.id.action_categoriasFragment_to_misCitasFragment)
-        }
 
         // Buscador
         binding.etBuscador.addTextChangedListener { texto ->
             val filtro = texto.toString().lowercase()
             val filtradas = categoriasOriginal.filter { it.name.lowercase().contains(filtro) }
             adapter.actualizarLista(filtradas)
+        }
+
+        // Botón para ir a Mis Citas
+        binding.btnMisCitas.setOnClickListener {
+            findNavController().navigate(CategoriasFragmentDirections.actionCategoriasFragmentToMisCitasFragment())
         }
 
         observarViewModel()

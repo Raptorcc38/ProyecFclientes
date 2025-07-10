@@ -28,7 +28,7 @@ class TrabajadoresFragment : Fragment() {
 
         adapter = TrabajadoresAdapter(emptyList()) { trabajador ->
             // Navega al perfil del trabajador usando SafeArgs
-            val action = TrabajadoresFragmentDirections.actionTrabajadoresFragmentToPerfilTrabajadorFragment(trabajador)
+            val action = TrabajadoresFragmentDirections.actionTrabajadoresFragmentToPerfilTrabajadorFragment(trabajador, categoriaId)
             findNavController().navigate(action)
         }
 

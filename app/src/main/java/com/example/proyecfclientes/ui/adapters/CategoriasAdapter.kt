@@ -1,4 +1,3 @@
-// ui/adapters/CategoriasAdapter.kt
 package com.example.proyecfclientes.ui.adapters
 
 import android.view.LayoutInflater
@@ -12,13 +11,8 @@ class CategoriasAdapter(
     private val onClick: (Categoria) -> Unit
 ) : RecyclerView.Adapter<CategoriasAdapter.CategoriaViewHolder>() {
 
-    inner class CategoriaViewHolder(private val binding: ItemCategoriaBinding)
-        : RecyclerView.ViewHolder(binding.root) {
-        fun bind(categoria: Categoria) {
-            binding.tvNombreCategoria.text = categoria.name
-            binding.root.setOnClickListener { onClick(categoria) }
-        }
-    }
+    inner class CategoriaViewHolder(val binding: ItemCategoriaBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoriaViewHolder {
         val binding = ItemCategoriaBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -26,7 +20,11 @@ class CategoriasAdapter(
     }
 
     override fun onBindViewHolder(holder: CategoriaViewHolder, position: Int) {
-        holder.bind(categorias[position])
+        val categoria = categorias[position]
+        holder.binding.tvNombreCategoria.text = categoria.name
+        holder.binding.root.setOnClickListener {
+            onClick(categoria)
+        }
     }
 
     override fun getItemCount(): Int = categorias.size

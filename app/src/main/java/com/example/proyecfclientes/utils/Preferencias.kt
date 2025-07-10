@@ -1,24 +1,41 @@
 package com.example.proyecfclientes.utils
 
 import android.content.Context
-import android.content.SharedPreferences
 
 object Preferencias {
-    private const val PREFS_NAME = "cliente_prefs"
-    private const val KEY_TOKEN = "access_token"
+
+    private const val PREFS_NAME = "proyecfclientes_prefs"
+    private const val TOKEN_KEY = "token"
+    private const val USER_ID_KEY = "user_id"
 
     fun guardarToken(context: Context, token: String) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putString(KEY_TOKEN, token).apply()
+        prefs.edit().putString(TOKEN_KEY, token).apply()
     }
 
-    fun obtenerToken(context: Context): String? {
+    fun getToken(context: Context): String? {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getString(KEY_TOKEN, null)
+        return prefs.getString(TOKEN_KEY, null)
     }
 
-    fun cerrarSesion(context: Context) {
+    fun limpiarToken(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit().clear().apply()
+        prefs.edit().remove(TOKEN_KEY).apply()
+    }
+
+    fun guardarUserId(context: Context, userId: Int) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putInt(USER_ID_KEY, userId).apply()
+    }
+
+    fun getUserId(context: Context): Int? {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val id = prefs.getInt(USER_ID_KEY, -1)
+        return if (id != -1) id else null
+    }
+
+    fun guardarTokenYUserId(context: Context, token: String, userId: Int) {
+        guardarToken(context, token)
+        guardarUserId(context, userId)
     }
 }

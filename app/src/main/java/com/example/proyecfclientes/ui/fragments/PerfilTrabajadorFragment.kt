@@ -4,64 +4,75 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.bumptech.glide.Glide
-import com.example.proyecfclientes.Data.modelo.Trabajador
+import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.proyecfclientes.databinding.FragmentPerfilTrabajadorBinding
-import com.example.proyecfclientes.repository.RepositorioCitas
-import kotlinx.coroutines.launch
-
+import com.example.proyecfclientes.ui.adapters.ResenasAdapter
+import com.example.proyecfclientes.viewmodel.PerfilTrabajadorViewModel
 class PerfilTrabajadorFragment : Fragment() {
-    private var _binding: FragmentPerfilTrabajadorBinding? = null
-    private val binding get() = _binding!!
+
+    private lateinit var binding: FragmentPerfilTrabajadorBinding
+    private lateinit var viewModel: PerfilTrabajadorViewModel
+
+    // Asume que tienes argumentos trabajador y categoriaId por SafeArgs
+    private val args by navArgs<PerfilTrabajadorFragmentArgs>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentPerfilTrabajadorBinding.inflate(inflater, container, false)
+        binding = FragmentPerfilTrabajadorBinding.inflate(inflater, container, false)
+        // Crear el repositorio y el factory para el ViewModel
+        val repositorioCitas = com.example.proyecfclientes.repository.RepositorioCitas(com.example.proyecfclientes.network.ApiClient.retrofit)
+        val factory = com.example.proyecfclientes.viewmodel.PerfilTrabajadorViewModelFactory(requireActivity().application, repositorioCitas)
+        viewModel = ViewModelProvider(this, factory)[PerfilTrabajadorViewModel::class.java]
 
-        val trabajador = arguments?.getSerializable("trabajador") as? Trabajador
+        // Botón de "Contactar"
+        binding.btnContactar.setOnClickListener {
+            // Soluciona el error de tipo: id nunca debe ser null
+            val trabajadorId = args.trabajador.id ?: 0
+            val categoriaId = args.categoriaId
+            viewModel.crearCita(trabajadorId, categoriaId)
+        }
 
-        trabajador?.let {
-            val nombre = it.user?.name ?: ""
-            val apellido = it.user?.last_name ?: ""
-            binding.tvNombrePerfil.text = "$nombre $apellido"
-            binding.tvCalificacionPerfil.text = "Calificación: ${it.average_rating ?: "Sin calificación"}"
-            binding.tvTrabajosPerfil.text = "Trabajos realizados: ${it.reviews_count ?: 0}"
+        viewModel.citaCreada.observe(viewLifecycleOwner) { cita ->
+            if (cita != null) {
+                // Navega al chat pasando el id de la cita creada
+                val action = PerfilTrabajadorFragmentDirections
+                    .actionPerfilTrabajadorFragmentToChatFragment(cita.id ?: 0)
+                findNavController().navigate(action)
+            } else {
+                Toast.makeText(requireContext(), "No se pudo crear la cita", Toast.LENGTH_SHORT).show()
+            }
+        }
 
-            val foto = if (it.picture_url == null || it.picture_url == "null") null else it.picture_url
-            Glide.with(requireContext())
-                .load(foto)
-                .placeholder(android.R.drawable.sym_def_app_icon)
-                .into(binding.ivFotoPerfil)
+        // Configurar RecyclerView de reseñas
+        val resenasAdapter = ResenasAdapter(emptyList())
+        binding.recyclerViewResenas.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerViewResenas.adapter = resenasAdapter
 
-            binding.btnContactar.setOnClickListener {
-                // Crear cita y navegar al chat
-                val categoriaId = trabajador.user?.type ?: 0 // Usa 0 si es nulo, o ajusta según tu lógica
-                lifecycleScope.launch {
-                    try {
-                        val response = RepositorioCitas().crearCita(trabajador.id ?: 0, categoriaId, requireContext())
-                        if (response.isSuccessful && response.body() != null && response.body()!!.id != null && response.body()!!.id != 0) {
-                            val cita = response.body()!!
-                            val citaId = cita.id!!
-                            // Navegación segura al chat
-                            val bundle = Bundle()
-                            bundle.putInt("appointmentId", citaId)
-                            findNavController().navigate(com.example.proyecfclientes.R.id.chatFragment, bundle)
-                        } else {
-                            Toast.makeText(requireContext(), "No se pudo crear la cita", Toast.LENGTH_SHORT).show()
-                        }
-                    } catch (e: Exception) {
-                        Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-                }
+        // Cargar detalle del trabajador
+        val trabajadorId = args.trabajador.id ?: 0
+        viewModel.cargarDetalleTrabajador(trabajadorId)
+
+        viewModel.detalleTrabajador.observe(viewLifecycleOwner) { detalle ->
+            if (detalle != null) {
+                val nombre = detalle.user?.name ?: ""
+                val apellido = detalle.user?.last_name ?: ""
+                binding.tvNombrePerfil.text = "$nombre $apellido"
+                binding.tvCalificacionPerfil.text = "Calificación: ${detalle.average_rating ?: "Sin calificación"}"
+                binding.tvTrabajosPerfil.text = "Trabajos realizados: ${detalle.reviews_count ?: 0}"
+                val profesiones = detalle.categories?.joinToString(", ") { it.name } ?: "Sin profesiones"
+                binding.tvProfesionesPerfil.text = "Profesiones: $profesiones"
+                val foto = if (detalle.picture_url.isNullOrEmpty() || detalle.picture_url == "null") null else detalle.picture_url
+                com.bumptech.glide.Glide.with(this)
+                    .load(foto)
+                    .placeholder(android.R.drawable.sym_def_app_icon)
+                    .error(android.R.drawable.sym_def_app_icon)
+                    .into(binding.ivFotoPerfil)
+                resenasAdapter.actualizarResenas(detalle.reviews ?: emptyList())
             }
         }
 
         return binding.root
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

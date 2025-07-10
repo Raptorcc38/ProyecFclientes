@@ -6,7 +6,7 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.proyecfclientes.ui.fragments.LoginFragment"
-        android:label="Login">
+        android:label="Iniciar Sesión">
         <action
             android:id="@+id/action_loginFragment_to_registroFragment"
             app:destination="@id/registroFragment" />
@@ -39,7 +39,11 @@
     <fragment
         android:id="@+id/misCitasFragment"
         android:name="com.example.proyecfclientes.ui.fragments.MisCitasFragment"
-        android:label="Mis Citas" />
+        android:label="Mis Citas">
+        <action
+            android:id="@+id/action_misCitasFragment_to_chatFragment"
+            app:destination="@id/chatFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/trabajadoresFragment"
@@ -60,6 +64,9 @@
         <argument
             android:name="trabajador"
             app:argType="com.example.proyecfclientes.Data.modelo.Trabajador" />
+        <argument
+            android:name="categoriaId"
+            app:argType="integer" />
         <action
             android:id="@+id/action_perfilTrabajadorFragment_to_chatFragment"
             app:destination="@id/chatFragment" />
@@ -72,6 +79,17 @@
         <argument
             android:name="appointmentId"
             app:argType="integer" />
+        <action
+            android:id="@+id/action_chatFragment_to_concretarCitaFragment"
+            app:destination="@id/concretarCitaFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/concretarCitaFragment"
+        android:name="com.example.proyecfclientes.ui.fragments.ConcretarCitaFragment"
+        android:label="Concretar Cita">
+        <argument
+            android:name="citaId"
+            app:argType="integer" />
+    </fragment>
 </navigation>
