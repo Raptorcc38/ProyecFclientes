@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.example.proyecfclientes.Data.modelo.Trabajador
 import com.example.proyecfclientes.repository.RepositorioTrabajadores
+import com.example.proyecfclientes.utils.Preferencias
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
@@ -14,7 +15,8 @@ class TrabajadoresViewModel(application: Application) : AndroidViewModel(applica
 
     fun cargarTrabajadores(categoriaId: Int) {
         viewModelScope.launch {
-            val response = repo.getTrabajadoresPorCategoria(categoriaId)
+            val token = Preferencias.getToken(getApplication<Application>().applicationContext) ?: ""
+            val response = repo.getTrabajadoresPorCategoria(token, categoriaId)
             _trabajadores.value = response
         }
     }

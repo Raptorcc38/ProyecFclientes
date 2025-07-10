@@ -1,172 +1,147 @@
 package com.example.proyecfclientes.ui.fragments
 
-import android.app.AlertDialog
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.RatingBar
 import android.widget.Toast
-import android.os.Handler
-import android.os.Looper
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.proyecfclientes.databinding.FragmentChatBinding
-import com.example.proyecfclientes.viewmodel.ChatViewModel
 import com.example.proyecfclientes.ui.adapters.MensajesAdapter
-import com.example.proyecfclientes.Data.modelo.Cita
 import com.example.proyecfclientes.network.ApiClient
 import com.example.proyecfclientes.utils.Preferencias
-import kotlinx.coroutines.CoroutineScope
+import com.example.proyecfclientes.Data.requests.MensajeRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ChatFragment : Fragment() {
 
-    private var _binding: FragmentChatBinding? = null
-    private val binding get() = _binding!!
-
+    private lateinit var binding: FragmentChatBinding
     private val args by navArgs<ChatFragmentArgs>()
-
-    private lateinit var viewModel: ChatViewModel
-
+    private val apiService = ApiClient.retrofit
+    private lateinit var adapter: MensajesAdapter
     private var handler: Handler? = null
     private var runnable: Runnable? = null
+
+    private var trabajadorNombre: String = ""
+    private var trabajadorFoto: String? = null
+    private var receiverId: Int? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentChatBinding.inflate(inflater, container, false)
-        viewModel = ViewModelProvider(
-            this,
-            ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
-        )[ChatViewModel::class.java]
-        return binding.root
-    }
-
-    private fun mostrarDialogoCalificacion(appointmentId: Int) {
-        val context = requireContext()
-        val dialogView = LayoutInflater.from(context).inflate(com.example.proyecfclientes.R.layout.dialog_calificar_cita, null)
-        val ratingBar = dialogView.findViewById<RatingBar>(com.example.proyecfclientes.R.id.ratingBar)
-        val etComentario = dialogView.findViewById<EditText>(com.example.proyecfclientes.R.id.etComentario)
-
-        AlertDialog.Builder(context)
-            .setTitle("Calificar trabajo")
-            .setView(dialogView)
-            .setPositiveButton("Enviar") { _, _ ->
-                val puntaje = ratingBar.rating
-                val comentario = etComentario.text.toString()
-                viewModel.calificarCita(appointmentId, puntaje, comentario)
-            }
-            .setNegativeButton("Cancelar", null)
-            .show()
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        val appointmentId = args.appointmentId
-        var receiverId: Int? = null
-        var myUserId: Int? = null
-        var citaActual: Cita? = null
-
-        binding.btnEnviarMensaje.isEnabled = false
-        // Obtener la cita para saber quién es el cliente y el trabajador
-        CoroutineScope(Dispatchers.Main).launch {
-            try {
-                val context = requireContext()
-                val token = "Bearer ${Preferencias.getToken(context)}"
-                val response = ApiClient.retrofit.obtenerCitaPorId(token, appointmentId)
-                if (response.isSuccessful && response.body() != null) {
-                    citaActual = response.body()
-                    myUserId = Preferencias.getUserId(context)
-                    // Mostrar foto y nombre del trabajador
-                    val trabajador = citaActual?.worker
-                    val nombre = trabajador?.user?.let { "${it.name ?: ""} ${it.last_name ?: ""}" } ?: ""
-                    binding.tvNombreTrabajador.text = nombre
-                    val foto = trabajador?.picture_url
-                    Glide.with(this@ChatFragment)
-                        .load(if (foto.isNullOrEmpty() || foto == "null") null else foto)
-                        .placeholder(android.R.drawable.sym_def_app_icon)
-                        .error(android.R.drawable.sym_def_app_icon)
-                        .into(binding.ivFotoTrabajador)
-                    // Habilita el botón solo si ambos datos están listos
-                    if (citaActual != null && myUserId != null) {
-                        binding.btnEnviarMensaje.isEnabled = true
-                    }
-                }
-            } catch (_: Exception) {}
-        }
-
-        // Adapter básico
-        val adapter = MensajesAdapter(emptyList())
+        binding = FragmentChatBinding.inflate(inflater, container, false)
+        adapter = MensajesAdapter()
+        binding.recyclerViewMensajes.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewMensajes.adapter = adapter
 
-        // Observar mensajes
-        viewModel.mensajes.observe(viewLifecycleOwner) { mensajes ->
-            adapter.actualizarMensajes(mensajes)
-        }
+        cargarInfoCita()
+        cargarMensajes()
 
-        viewModel.cargarMensajesDeCita(appointmentId)
-
-        // Actualización automática cada 30 segundos
-        handler = Handler(Looper.getMainLooper())
-        runnable = object : Runnable {
-            override fun run() {
-                viewModel.cargarMensajesDeCita(appointmentId)
-                handler?.postDelayed(this, 30000)
-            }
-        }
-        handler?.postDelayed(runnable!!, 30000)
-
-        // Botón para enviar mensaje
         binding.btnEnviarMensaje.setOnClickListener {
-            val texto = binding.etMensaje.text.toString().trim()
-            if (texto.isNotEmpty() && citaActual != null && myUserId != null) {
-                receiverId = if (myUserId == citaActual!!.user_id) citaActual!!.worker_id else citaActual!!.user_id
-                if (receiverId != null) {
-                    viewModel.enviarMensaje(appointmentId, texto, receiverId!!)
-                    binding.etMensaje.setText("")
-                } else {
-                    Toast.makeText(requireContext(), "No se pudo determinar el destinatario", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-
-        // Observa envío de mensajes
-        viewModel.mensajeEnviado.observe(viewLifecycleOwner) { enviado ->
-            if (enviado) {
-                viewModel.cargarMensajesDeCita(appointmentId)
+            val mensaje = binding.etMensaje.text.toString().trim()
+            if (mensaje.isNotEmpty() && receiverId != null) {
+                enviarMensaje(mensaje, receiverId!!)
+                binding.etMensaje.setText("")
             } else {
-                Toast.makeText(requireContext(), "Error al enviar mensaje", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "No se pudo determinar el destinatario", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // Botón para concretar cita (solo si la cita no está concretada)
-        binding.btnConcretarCita?.setOnClickListener {
-            val citaId = args.appointmentId
-            val action = ChatFragmentDirections.actionChatFragmentToConcretarCitaFragment(citaId)
+        binding.btnConcretarCita.setOnClickListener {
+            val action = ChatFragmentDirections.actionChatFragmentToConcretarCitaFragment(args.appointmentId)
             findNavController().navigate(action)
         }
 
-        // Mostrar popup de calificación si la cita está finalizada y no calificada
-        viewModel.citaFinalizadaSinCalificar.observe(viewLifecycleOwner) { mostrar ->
-            if (mostrar) {
-                mostrarDialogoCalificacion(args.appointmentId)
+        handler = Handler(Looper.getMainLooper())
+        runnable = object : Runnable {
+            override fun run() {
+                cargarMensajes()
+                handler?.postDelayed(this, 30000)
+            }
+        }
+        handler?.post(runnable!!)
+
+        return binding.root
+    }
+
+    private fun cargarInfoCita() {
+        lifecycleScope.launch {
+            try {
+                val token = Preferencias.getToken(requireContext())
+                val response = withContext(Dispatchers.IO) {
+                    apiService.obtenerCitaPorId("Bearer $token", args.appointmentId)
+                }
+                if (response.isSuccessful && response.body() != null) {
+                    val cita = response.body()!!
+                    trabajadorNombre = cita.worker?.user?.name ?: ""
+                    trabajadorFoto = cita.worker?.picture_url
+                    receiverId = cita.worker?.user_id
+
+                    binding.tvNombreTrabajador.text = trabajadorNombre
+                    Glide.with(requireContext())
+                        .load(trabajadorFoto)
+                        .placeholder(android.R.drawable.sym_def_app_icon)
+                        .error(android.R.drawable.sym_def_app_icon)
+                        .into(binding.ivFotoTrabajador)
+                } else {
+                    binding.tvNombreTrabajador.text = "Trabajador"
+                }
+            } catch (e: Exception) {
+                binding.tvNombreTrabajador.text = "Trabajador"
+            }
+        }
+    }
+
+    private fun cargarMensajes() {
+        lifecycleScope.launch {
+            try {
+                val token = Preferencias.getToken(requireContext())
+                val response = withContext(Dispatchers.IO) {
+                    apiService.obtenerMensajesChat("Bearer $token", args.appointmentId)
+                }
+                if (response.isSuccessful && response.body() != null) {
+                    val mensajes = response.body()!!
+                    adapter.actualizarMensajes(mensajes)
+                    binding.recyclerViewMensajes.scrollToPosition(adapter.itemCount - 1)
+                }
+            } catch (_: Exception) { }
+        }
+    }
+
+    private fun enviarMensaje(mensaje: String, destinatarioId: Int) {
+        lifecycleScope.launch {
+            try {
+                val token = Preferencias.getToken(requireContext())
+                val body = MensajeRequest(
+                    message = mensaje,
+                    receiver_id = destinatarioId
+                )
+                val response = withContext(Dispatchers.IO) {
+                    apiService.enviarMensajeChat("Bearer $token", args.appointmentId, body)
+                }
+                if (response.isSuccessful) {
+                    cargarMensajes()
+                } else {
+                    Toast.makeText(requireContext(), "No se pudo enviar el mensaje", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Error al enviar mensaje", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        handler?.removeCallbacksAndMessages(null)
-        handler = null
-        runnable = null
-        _binding = null
+        handler?.removeCallbacks(runnable!!)
     }
 }

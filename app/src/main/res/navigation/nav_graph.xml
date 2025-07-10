@@ -79,6 +79,18 @@
         <argument
             android:name="appointmentId"
             app:argType="integer" />
+        <argument
+            android:name="trabajadorNombre"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="trabajadorFotoUrl"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="trabajadorId"
+            app:argType="integer"
+            android:defaultValue="0" />
         <action
             android:id="@+id/action_chatFragment_to_concretarCitaFragment"
             app:destination="@id/concretarCitaFragment" />

@@ -1,49 +1,40 @@
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
     <data />
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:orientation="vertical"
+        android:padding="12dp">
 
         <TextView
-            android:id="@+id/tvNombreUsuario"
-            android:layout_width="0dp"
+            android:id="@+id/tvResenaUsuario"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Usuario"
             android:textStyle="bold"
-            android:textSize="16sp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/tvPuntaje"
+            android:id="@+id/tvResenaComentario"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Puntaje: 5"
-            app:layout_constraintTop_toBottomOf="@id/tvNombreUsuario"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="4dp"/>
+            android:text="Comentario"
+            android:textSize="14sp" />
 
         <TextView
-            android:id="@+id/tvFecha"
+            android:id="@+id/tvResenaFecha"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="2025-07-09"
-            app:layout_constraintTop_toBottomOf="@id/tvNombreUsuario"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="4dp"/>
+            android:text="Fecha"
+            android:textSize="12sp" />
 
         <TextView
-            android:id="@+id/tvComentario"
-            android:layout_width="0dp"
+            android:id="@+id/tvResenaRating"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Comentario de la reseña"
-            app:layout_constraintTop_toBottomOf="@id/tvPuntaje"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="4dp"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:text="★ 5.0"
+            android:textSize="14sp"
+            android:textColor="#FFB300" />
+    </LinearLayout>
 </layout>

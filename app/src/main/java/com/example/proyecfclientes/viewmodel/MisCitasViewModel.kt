@@ -2,9 +2,7 @@ package com.example.proyecfclientes.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.proyecfclientes.Data.modelo.Cita
 import com.example.proyecfclientes.Data.requests.ConcretarCitaRequest
@@ -12,51 +10,39 @@ import com.example.proyecfclientes.repository.RepositorioCitas
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
-class MisCitasViewModel(application: Application, private val repo: RepositorioCitas) : AndroidViewModel(application) {
+class MisCitasViewModel(
+    application: Application,
+    private val repo: RepositorioCitas
+) : AndroidViewModel(application) {
 
-    val resultadoConcretar = MutableLiveData<Response<Cita>>()
+    val citas = MutableLiveData<List<Cita>?>()
+    val resultadoConcretar = MutableLiveData<Response<Cita>?>()
 
-    // Agregado para el fragmento
-    private val _citas = MutableLiveData<List<Cita>>()
-    val citas: LiveData<List<Cita>> = _citas
-
-    private val _error = MutableLiveData<String?>()
-    val error: LiveData<String?> = _error
-
-    fun cargarCitas() {
+    // Obtener todas las citas del cliente
+    fun obtenerCitas(token: String) {
         viewModelScope.launch {
             try {
-                val context = getApplication<Application>().applicationContext
-                val token = com.example.proyecfclientes.utils.Preferencias.getToken(context)
-                val response = repo.obtenerCitas("Bearer $token")
-                if (response.isSuccessful && response.body() != null) {
-                    _citas.value = response.body()
+                val response = repo.obtenerCitas(token)
+                if (response.isSuccessful) {
+                    citas.postValue(response.body())
                 } else {
-                    _error.value = "Error al obtener citas"
+                    citas.postValue(null)
                 }
             } catch (e: Exception) {
-                _error.value = "Error de red"
+                citas.postValue(null)
             }
         }
     }
 
+    // Concretar cita
     fun concretarCita(token: String, citaId: Int, request: ConcretarCitaRequest) {
         viewModelScope.launch {
-            val response = repo.concretarCita(token, citaId, request)
-            resultadoConcretar.postValue(response)
+            try {
+                val response = repo.concretarCita(token, citaId, request)
+                resultadoConcretar.postValue(response)
+            } catch (e: Exception) {
+                resultadoConcretar.postValue(null)
+            }
         }
-    }
-}
-
-class MisCitasViewModelFactory(
-    private val application: Application,
-    private val repo: RepositorioCitas
-) : ViewModelProvider.Factory {
-    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MisCitasViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return MisCitasViewModel(application, repo) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

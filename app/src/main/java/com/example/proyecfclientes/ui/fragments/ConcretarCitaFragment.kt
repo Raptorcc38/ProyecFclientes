@@ -12,8 +12,9 @@ import com.example.proyecfclientes.Data.requests.ConcretarCitaRequest
 import com.example.proyecfclientes.databinding.FragmentConcretarCitaBinding
 import com.example.proyecfclientes.utils.Preferencias
 import com.example.proyecfclientes.viewmodel.MisCitasViewModel
+import com.example.proyecfclientes.viewmodel.MisCitasViewModelFactory
 import java.util.*
-import retrofit2.Response
+
 
 class ConcretarCitaFragment : Fragment() {
 
@@ -32,8 +33,8 @@ class ConcretarCitaFragment : Fragment() {
         _binding = FragmentConcretarCitaBinding.inflate(inflater, container, false)
 
         val repo = com.example.proyecfclientes.repository.RepositorioCitas(com.example.proyecfclientes.network.ApiClient.retrofit)
-        val factory = com.example.proyecfclientes.viewmodel.MisCitasViewModelFactory(requireActivity().application, repo)
-        viewModel = ViewModelProvider(this, factory)[com.example.proyecfclientes.viewmodel.MisCitasViewModel::class.java]
+        val factory = MisCitasViewModelFactory(requireActivity().application, repo)
+        viewModel = ViewModelProvider(this, factory)[MisCitasViewModel::class.java]
 
         // Selección de fecha
         binding.btnFecha.setOnClickListener {
@@ -92,11 +93,9 @@ class ConcretarCitaFragment : Fragment() {
         viewModel.resultadoConcretar.observe(viewLifecycleOwner) { response ->
             if (response != null && response.isSuccessful) {
                 Toast.makeText(requireContext(), "Cita concretada correctamente", Toast.LENGTH_SHORT).show()
-                // Navegación segura: asegúrate de tener la acción en tu nav_graph
                 try {
                     findNavController().navigate(com.example.proyecfclientes.R.id.misCitasFragment)
                 } catch (e: Exception) {
-                    // Si la acción no existe, navega directamente al fragmento
                     findNavController().popBackStack()
                 }
             } else {

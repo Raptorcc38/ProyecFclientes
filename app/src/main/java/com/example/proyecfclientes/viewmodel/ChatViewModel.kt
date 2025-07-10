@@ -2,85 +2,82 @@ package com.example.proyecfclientes.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.example.proyecfclientes.Data.modelo.Cita
 import com.example.proyecfclientes.Data.modelo.Mensaje
-import com.example.proyecfclientes.Data.requests.ConcretarCitaRequest
-import com.example.proyecfclientes.Data.requests.CrearCitaRequest
-import com.example.proyecfclientes.network.ApiClient
+import com.example.proyecfclientes.Data.requests.MensajeRequest
+import com.example.proyecfclientes.repository.RepositorioCitas
 import com.example.proyecfclientes.utils.Preferencias
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import retrofit2.Response
 
-class ChatViewModel(application: Application) : AndroidViewModel(application) {
+class ChatViewModel(
+    application: Application,
+    private val repositorioCitas: RepositorioCitas
+) : AndroidViewModel(application) {
 
     private val _mensajes = MutableLiveData<List<Mensaje>>()
     val mensajes: LiveData<List<Mensaje>> = _mensajes
 
-    private val _mensajeEnviado = MutableLiveData<Boolean>()
-    val mensajeEnviado: LiveData<Boolean> = _mensajeEnviado
+    private val _enviando = MutableLiveData<Boolean>()
+    val enviando: LiveData<Boolean> = _enviando
 
-    private val _citaFinalizadaSinCalificar = MutableLiveData<Boolean>()
-    val citaFinalizadaSinCalificar: LiveData<Boolean> = _citaFinalizadaSinCalificar
-    private val _calificacionExitosa = MutableLiveData<Boolean>()
-    val calificacionExitosa: LiveData<Boolean> = _calificacionExitosa
+    private val _error = MutableLiveData<String?>()
+    val error: LiveData<String?> = _error
 
-    private var citaActual: Cita? = null
+    private var autoUpdateJob: Job? = null
 
-    fun cargarMensajesDeCita(appointmentId: Int) {
+    fun cargarMensajes(appointmentId: Int) {
         viewModelScope.launch {
             try {
-                val context = getApplication<Application>().applicationContext
-                val token = "Bearer ${Preferencias.getToken(context)}"
-                val response = ApiClient.retrofit.obtenerMensajesCita(token, appointmentId)
-                if (response.isSuccessful && response.body() != null) {
-                    _mensajes.value = response.body()!!
+                val token = Preferencias.getToken(getApplication<Application>().applicationContext) ?: ""
+                val response = repositorioCitas.obtenerMensajesChat(token, appointmentId)
+                if (response.isSuccessful) {
+                    _mensajes.value = response.body() ?: emptyList()
+                } else {
+                    _error.value = "Error al cargar mensajes"
                 }
             } catch (e: Exception) {
-                _mensajes.value = emptyList()
+                _error.value = "Error de conexión"
             }
         }
     }
 
     fun enviarMensaje(appointmentId: Int, mensaje: String, receiverId: Int) {
+        _enviando.value = true
         viewModelScope.launch {
             try {
-                val context = getApplication<Application>().applicationContext
-                val token = "Bearer ${Preferencias.getToken(context)}"
-                val response = ApiClient.retrofit.enviarMensajeCita(
-                    token,
-                    appointmentId,
-                    mapOf("message" to mensaje, "receiver_id" to receiverId.toString())
-                )
-                _mensajeEnviado.value = response.isSuccessful
+                val token = Preferencias.getToken(getApplication<Application>().applicationContext) ?: ""
+                val request = MensajeRequest(message = mensaje, receiver_id = receiverId)
+                val response = repositorioCitas.enviarMensajeChat(token, appointmentId, request)
                 if (response.isSuccessful) {
-                    cargarMensajesDeCita(appointmentId)
+                    cargarMensajes(appointmentId) // refresca
+                    _enviando.value = false
+                } else {
+                    _error.value = "No se pudo enviar el mensaje"
+                    _enviando.value = false
                 }
             } catch (e: Exception) {
-                _mensajeEnviado.value = false
+                _error.value = "Error de conexión"
+                _enviando.value = false
             }
         }
     }
 
-    fun verificarCitaFinalizadaSinCalificar(cita: Cita?) {
-        // status == 1: concretada, status == 2: calificada
-        _citaFinalizadaSinCalificar.value = (cita?.status == 1)
-        citaActual = cita
-    }
-
-    fun calificarCita(appointmentId: Int, rating: Float, comentario: String) {
-        viewModelScope.launch {
-            try {
-                val context = getApplication<Application>().applicationContext
-                val token = "Bearer ${Preferencias.getToken(context)}"
-                val body = mapOf(
-                    "rating" to rating,
-                    "comment" to comentario
-                )
-                val response = ApiClient.retrofit.calificarCita(token, appointmentId, body)
-                _calificacionExitosa.value = response.isSuccessful
-            } catch (e: Exception) {
-                _calificacionExitosa.value = false
+    fun startAutoUpdate(appointmentId: Int) {
+        autoUpdateJob?.cancel()
+        autoUpdateJob = viewModelScope.launch {
+            while (true) {
+                cargarMensajes(appointmentId)
+                delay(30_000) // cada 30 segundos
             }
         }
+    }
+
+    fun stopAutoUpdate() {
+        autoUpdateJob?.cancel()
+    }
+
+    fun clearError() {
+        _error.value = null
     }
 }

@@ -12,5 +12,6 @@ data class TrabajadorDetalle(
     val user: User?,
     val categories: List<Categoria>?,
     val reviews: List<Resena>?
+
 ) : Serializable
 

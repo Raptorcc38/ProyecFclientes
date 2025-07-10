@@ -1,20 +1,29 @@
 package com.example.proyecfclientes.repository
 
+import android.content.Context
 import com.example.proyecfclientes.Data.modelo.Mensaje
+import com.example.proyecfclientes.Data.requests.MensajeRequest
 import com.example.proyecfclientes.network.ApiClient
 import com.example.proyecfclientes.utils.Preferencias
 import retrofit2.Response
 
 class RepositorioChat {
-    suspend fun getMensajes(appointmentId: Int, context: android.content.Context): Response<List<Mensaje>> {
-        val token = com.example.proyecfclientes.utils.Preferencias.getToken(context)
-        return ApiClient.retrofit.obtenerMensajesCita(token = "Bearer $token", appointmentId = appointmentId)
+
+    suspend fun getMensajes(appointmentId: Int, context: Context): Response<List<Mensaje>> {
+        val token = Preferencias.getToken(context)
+        return ApiClient.retrofit.obtenerMensajesChat(
+            token = "Bearer $token",
+            citaId = appointmentId
+        )
     }
 
-    suspend fun enviarMensaje(appointmentId: Int, mensaje: String, context: android.content.Context): Response<Unit> {
-        val token = com.example.proyecfclientes.utils.Preferencias.getToken(context)
-        // Solo envía el mensaje como String, sin receiver_id
-        val body = mapOf("message" to mensaje)
-        return ApiClient.retrofit.enviarMensajeCita(token = "Bearer $token", appointmentId = appointmentId, mensaje = body)
+    suspend fun enviarMensaje(appointmentId: Int, mensaje: String, receiverId: Int, context: Context): Response<Unit> {
+        val token = Preferencias.getToken(context)
+        val body = MensajeRequest(message = mensaje, receiver_id = receiverId)
+        return ApiClient.retrofit.enviarMensajeChat(
+            token = "Bearer $token",
+            citaId = appointmentId,
+            request = body
+        )
     }
 }

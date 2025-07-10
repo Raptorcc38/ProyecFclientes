@@ -12,7 +12,7 @@ class RepositorioClientes {
         return ApiClient.retrofit.loginCliente(loginRequest)
     }
 
-    suspend fun registrarCliente(registroRequest: RegistroRequest): Response<Unit> {
-        return ApiClient.retrofit.registroCliente(registroRequest)
+    suspend fun registrarCliente(registroRequest: RegistroRequest): Response<LoginResponse> {
+        return ApiClient.retrofit.registrarCliente(registroRequest)
     }
 }

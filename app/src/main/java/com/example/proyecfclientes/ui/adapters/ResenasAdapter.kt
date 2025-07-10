@@ -18,11 +18,10 @@ class ResenasAdapter(private var resenas: List<Resena>) :
 
     override fun onBindViewHolder(holder: ResenaViewHolder, position: Int) {
         val resena = resenas[position]
-        val nombre = resena.user?.name ?: "Usuario"
-        holder.binding.tvNombreUsuario.text = nombre
-        holder.binding.tvComentario.text = resena.comment ?: ""
-        holder.binding.tvPuntaje.text = "Puntaje: ${resena.rating ?: "-"}"
-        holder.binding.tvFecha.text = resena.created_at ?: ""
+        holder.binding.tvResenaUsuario.text = resena.user?.name ?: "Usuario"
+        holder.binding.tvResenaComentario.text = resena.comment ?: ""
+        holder.binding.tvResenaFecha.text = resena.created_at ?: ""
+        holder.binding.tvResenaRating.text = " ${resena.rating ?: "-"}"
     }
 
     override fun getItemCount(): Int = resenas.size
@@ -32,4 +31,3 @@ class ResenasAdapter(private var resenas: List<Resena>) :
         notifyDataSetChanged()
     }
 }
-

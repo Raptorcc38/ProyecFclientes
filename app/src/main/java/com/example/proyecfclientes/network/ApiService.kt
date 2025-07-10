@@ -1,86 +1,99 @@
 package com.example.proyecfclientes.network
 
-import com.example.proyecfclientes.Data.modelo.Mensaje
-import com.example.proyecfclientes.Data.requests.CrearCitaRequest
-import com.example.proyecfclientes.Data.requests.ConcretarCitaRequest
-import com.example.proyecfclientes.Data.modelo.Cita
-import com.example.proyecfclientes.Data.modelo.Categoria
+import com.example.proyecfclientes.Data.modelo.*
+import com.example.proyecfclientes.Data.requests.*
+import com.example.proyecfclientes.Data.response.LoginResponse
 import retrofit2.Response
 import retrofit2.http.*
 
 interface ApiService {
-    // ...otros métodos...
 
-    // Obtener mensajes del chat de una cita
-    @GET("appointments/{id}/chats")
-    suspend fun obtenerMensajesCita(
+    // ========== AUTENTICACIÓN ==========
+
+    @POST("client/login")
+    suspend fun loginCliente(
+        @Body request: LoginRequest
+    ): Response<LoginResponse>
+
+    @POST("client/register")
+    suspend fun registrarCliente(
+        @Body request: RegistroRequest
+    ): Response<LoginResponse>
+
+    // ========== CATEGORÍAS ==========
+
+    @GET("categories")
+    suspend fun obtenerCategorias(
+        @Header("Authorization") token: String
+    ): Response<List<Categoria>>
+
+    @GET("categories/{categoriaId}/workers")
+    suspend fun obtenerTrabajadoresPorCategoria(
         @Header("Authorization") token: String,
-        @Path("id") appointmentId: Int
-    ): Response<List<Mensaje>>
+        @Path("categoriaId") categoriaId: Int
+    ): Response<List<Trabajador>>
 
-    // Enviar mensaje al chat de una cita
-    @POST("appointments/{id}/chats")
-    suspend fun enviarMensajeCita(
-        @Header("Authorization") token: String,
-        @Path("id") appointmentId: Int,
-        @Body mensaje: Map<String, String>
-    ): Response<Unit>
+    // ========== CITAS (APPOINTMENTS) ==========
 
-    // Crear cita
     @POST("appointments")
     suspend fun crearCita(
         @Header("Authorization") token: String,
         @Body request: CrearCitaRequest
     ): Response<Cita>
 
-    // Concretar cita
-    @POST("appointments/{id}/make")
+    @POST("appointments/{appointmentId}/make")
     suspend fun concretarCita(
         @Header("Authorization") token: String,
-        @Path("id") citaId: Int,
+        @Path("appointmentId") appointmentId: Int,
         @Body request: ConcretarCitaRequest
     ): Response<Cita>
 
-    // Obtener categorías
-    @GET("categories")
-    suspend fun obtenerCategorias(): Response<List<Categoria>>
-
-    // Login de cliente
-    @POST("client/login")
-    suspend fun loginCliente(@Body request: com.example.proyecfclientes.Data.requests.LoginRequest): retrofit2.Response<com.example.proyecfclientes.Data.response.LoginResponse>
-
-    // Registro de cliente
-    @POST("api/client/register")
-    suspend fun registroCliente(@Body request: com.example.proyecfclientes.Data.requests.RegistroRequest): retrofit2.Response<Unit>
-
-    // Obtener trabajadores por categoría
-    @GET("categories/{id}/workers")
-    suspend fun obtenerTrabajadoresPorCategoria(@Path("id") categoriaId: Int): Response<List<com.example.proyecfclientes.Data.modelo.Trabajador>>
-
-    // Obtener detalle de un trabajador (categorías y reseñas)
-    @GET("workers/{id}")
-    suspend fun obtenerDetalleTrabajador(
-        @Path("id") trabajadorId: Int
-    ): Response<com.example.proyecfclientes.Data.modelo.TrabajadorDetalle>
-
-    // Calificar cita
-    @POST("appointments/{id}/review")
-    suspend fun calificarCita(
-        @Header("Authorization") token: String,
-        @Path("id") appointmentId: Int,
-        @Body body: Map<String, Any>
-    ): Response<Unit>
-
-    // Obtener citas
     @GET("appointments")
     suspend fun obtenerCitas(
         @Header("Authorization") token: String
-    ): Response<List<com.example.proyecfclientes.Data.modelo.Cita>>
+    ): Response<List<Cita>>
 
-    // Obtener cita por ID
-    @GET("appointments/{id}")
+    @GET("appointments/{appointmentId}")
     suspend fun obtenerCitaPorId(
         @Header("Authorization") token: String,
-        @Path("id") citaId: Int
+        @Path("appointmentId") appointmentId: Int
     ): Response<Cita>
+
+    // ========== CHAT ==========
+
+    @GET("appointments/{citaId}/chats")
+    suspend fun obtenerMensajesChat(
+        @Header("Authorization") token: String,
+        @Path("citaId") citaId: Int
+    ): Response<List<Mensaje>>
+
+    @POST("appointments/{citaId}/chats")
+    suspend fun enviarMensajeChat(
+        @Header("Authorization") token: String,
+        @Path("citaId") citaId: Int,
+        @Body request: MensajeRequest
+    ): Response<Unit>
+
+    // ========== TRABAJADOR ==========
+
+    @GET("workers/{trabajadorId}")
+    suspend fun obtenerDetalleTrabajador(
+        @Header("Authorization") token: String,
+        @Path("trabajadorId") trabajadorId: Int
+    ): Response<TrabajadorDetalle>
+
+    // ========== RESEÑAS Y REVIEW ==========
+
+    @POST("appointments/{appointmentId}/review")
+    suspend fun enviarReview(
+        @Header("Authorization") token: String,
+        @Path("appointmentId") appointmentId: Int,
+        @Body reviewRequest: ReviewRequest
+    ): Response<Unit>
+
+    @GET("workers/{trabajadorId}/reviews")
+    suspend fun obtenerResenas(
+        @Header("Authorization") token: String,
+        @Path("trabajadorId") trabajadorId: Int
+    ): Response<List<Resena>>
 }
