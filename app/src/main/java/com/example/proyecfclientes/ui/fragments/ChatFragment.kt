@@ -64,13 +64,14 @@ class ChatFragment : Fragment() {
                 .setTitle("Concretar cita")
                 .setMessage("¿Está seguro que desea concretar una cita?")
                 .setPositiveButton("Sí") { _, _ ->
-                    // Navega a SeleccionarUbicacionFragment (debes tener la acción creada)
-                    val action = ChatFragmentDirections.actionChatFragmentToSeleccionarUbicacionFragment(args.appointmentId)
+                    val action = ChatFragmentDirections
+                        .actionChatFragmentToSeleccionarUbicacionFragment(args.appointmentId)
                     findNavController().navigate(action)
                 }
                 .setNegativeButton("No", null)
                 .show()
         }
+
 
         handler = Handler(Looper.getMainLooper())
         runnable = object : Runnable {

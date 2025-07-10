@@ -23,7 +23,7 @@ class SeleccionarUbicacionFragment : Fragment(), OnMapReadyCallback {
 
     private var googleMap: GoogleMap? = null
     private var marker: Marker? = null
-    private val args by navArgs<SeleccionarUbicacionFragmentArgs>() // <-- navArgs para obtener appointmentId si lo pasas
+    private val args by navArgs<SeleccionarUbicacionFragmentArgs>() // appointmentId recibido
 
     private var latitudSeleccionada: Double? = null
     private var longitudSeleccionada: Double? = null
@@ -67,7 +67,7 @@ class SeleccionarUbicacionFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-    // Manejo del ciclo de vida de MapView
+    // Ciclo de vida del MapView
     override fun onResume() { super.onResume(); binding.mapView.onResume() }
     override fun onPause() { super.onPause(); binding.mapView.onPause() }
     override fun onDestroyView() {
