@@ -13,8 +13,6 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
 
 class SeleccionarUbicacionFragment : Fragment(), OnMapReadyCallback {
 
@@ -22,8 +20,8 @@ class SeleccionarUbicacionFragment : Fragment(), OnMapReadyCallback {
     private val binding get() = _binding!!
 
     private var googleMap: GoogleMap? = null
-    private var marker: Marker? = null
-    private val args by navArgs<SeleccionarUbicacionFragmentArgs>() // appointmentId recibido
+
+    private val args by navArgs<SeleccionarUbicacionFragmentArgs>()
 
     private var latitudSeleccionada: Double? = null
     private var longitudSeleccionada: Double? = null
@@ -39,7 +37,7 @@ class SeleccionarUbicacionFragment : Fragment(), OnMapReadyCallback {
 
         binding.btnConfirmarUbicacion.setOnClickListener {
             if (latitudSeleccionada != null && longitudSeleccionada != null) {
-                // Navegar al fragmento para seleccionar fecha y hora
+
                 val action = SeleccionarUbicacionFragmentDirections
                     .actionSeleccionarUbicacionFragmentToSeleccionarFechaHoraFragment(
                         appointmentId = args.appointmentId,
@@ -58,24 +56,37 @@ class SeleccionarUbicacionFragment : Fragment(), OnMapReadyCallback {
         googleMap = map
         val santaCruz = LatLng(-17.783331, -63.182131)
         googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(santaCruz, 13f))
-
-        googleMap?.setOnMapClickListener { latLng ->
-            marker?.remove()
-            marker = googleMap?.addMarker(MarkerOptions().position(latLng).title("Ubicación seleccionada"))
-            latitudSeleccionada = latLng.latitude
-            longitudSeleccionada = latLng.longitude
+        // Ya no agregamos ningún marcador dinámico aquí, solo usamos el pin fijo del layout
+        // El centro del mapa será la ubicación seleccionada
+        googleMap?.setOnCameraIdleListener {
+            val center = googleMap?.cameraPosition?.target
+            if (center != null) {
+                latitudSeleccionada = center.latitude
+                longitudSeleccionada = center.longitude
+            }
         }
     }
 
-    // Ciclo de vida del MapView
-    override fun onResume() { super.onResume(); binding.mapView.onResume() }
-    override fun onPause() { super.onPause(); binding.mapView.onPause() }
+    override fun onResume() {
+        super.onResume()
+        binding.mapView.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.mapView.onPause()
+    }
+
     override fun onDestroyView() {
         binding.mapView.onDestroy()
-        _binding = null
         super.onDestroyView()
     }
-    override fun onLowMemory() { super.onLowMemory(); binding.mapView.onLowMemory() }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        binding.mapView.onLowMemory()
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         binding.mapView.onSaveInstanceState(outState)

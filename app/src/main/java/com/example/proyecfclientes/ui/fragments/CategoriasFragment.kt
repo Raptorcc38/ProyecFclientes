@@ -24,7 +24,6 @@ class CategoriasFragment : Fragment() {
         binding = FragmentCategoriasBinding.inflate(inflater, container, false)
         viewModel = ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory(requireActivity().application))[CategoriasViewModel::class.java]
 
-        // Adapter con función lambda que navega usando SafeArgs
         adapter = CategoriasAdapter(emptyList()) { categoria ->
             val action = CategoriasFragmentDirections.actionCategoriasFragmentToTrabajadoresFragment(categoria.id)
             findNavController().navigate(action)
@@ -32,14 +31,14 @@ class CategoriasFragment : Fragment() {
         binding.recyclerViewCategorias.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewCategorias.adapter = adapter
 
-        // Buscador
+
         binding.etBuscador.addTextChangedListener { texto ->
             val filtro = texto.toString().lowercase()
             val filtradas = categoriasOriginal.filter { it.name.lowercase().contains(filtro) }
             adapter.actualizarLista(filtradas)
         }
 
-        // Botón para ir a Mis Citas
+
         binding.btnMisCitas.setOnClickListener {
             findNavController().navigate(CategoriasFragmentDirections.actionCategoriasFragmentToMisCitasFragment())
         }

@@ -27,7 +27,7 @@ class TrabajadoresFragment : Fragment() {
         val categoriaId = arguments?.getInt("categoriaId") ?: 0
 
         adapter = TrabajadoresAdapter(emptyList()) { trabajador ->
-            // Navega al perfil del trabajador usando SafeArgs
+
             val action = TrabajadoresFragmentDirections.actionTrabajadoresFragmentToPerfilTrabajadorFragment(trabajador, categoriaId)
             findNavController().navigate(action)
         }
@@ -35,7 +35,7 @@ class TrabajadoresFragment : Fragment() {
         binding.recyclerViewTrabajadores.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewTrabajadores.adapter = adapter
 
-        // Buscador por nombre o apellido
+
         binding.etBuscadorTrabajador.addTextChangedListener { texto ->
             val filtro = texto.toString().lowercase()
             val filtradas = listaOriginal.filter {

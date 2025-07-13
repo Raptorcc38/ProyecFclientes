@@ -59,10 +59,6 @@ class SeleccionarFechaHoraFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            // Aquí deberías llamar a tu ViewModel o método que haga el POST para concretar la cita usando:
-            // args.appointmentId, args.latitud, args.longitud, fechaSeleccionada, horaSeleccionada
-
-            // Por ahora, simplemente navegar a MisCitasFragment (ajusta esto según tu lógica real)
             findNavController().navigate(
                 SeleccionarFechaHoraFragmentDirections.actionSeleccionarFechaHoraFragmentToMisCitasFragment()
             )

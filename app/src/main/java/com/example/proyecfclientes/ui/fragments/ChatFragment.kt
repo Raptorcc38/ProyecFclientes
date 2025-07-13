@@ -50,15 +50,34 @@ class ChatFragment : Fragment() {
 
         binding.btnEnviarMensaje.setOnClickListener {
             val mensaje = binding.etMensaje.text.toString().trim()
-            if (mensaje.isNotEmpty() && receiverId != null) {
-                // enviarMensaje(mensaje, receiverId!!) // (Pendiente solucionar chat)
-                binding.etMensaje.setText("")
+            val receiverId = args.trabajadorId // Usar el id del trabajador pasado por argumentos
+            if (mensaje.isNotEmpty() && receiverId != 0) {
+                lifecycleScope.launch {
+                    try {
+                        val token = Preferencias.getToken(requireContext())
+                        val request = com.example.proyecfclientes.Data.requests.MensajeRequest(
+                            message = mensaje,
+                            receiver_id = receiverId
+                        )
+                        val response = withContext(Dispatchers.IO) {
+                            apiService.enviarMensajeChat("Bearer $token", args.appointmentId, request)
+                        }
+                        if (response.isSuccessful) {
+                            binding.etMensaje.setText("")
+                            cargarMensajes()
+                        } else {
+                            Toast.makeText(requireContext(), "No se pudo enviar el mensaje", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(requireContext(), "Error al enviar mensaje", Toast.LENGTH_SHORT).show()
+                    }
+                }
             } else {
                 Toast.makeText(requireContext(), "No se pudo determinar el destinatario", Toast.LENGTH_SHORT).show()
             }
         }
 
-        // DIÁLOGO DE CONFIRMACIÓN DE CITA
+
         binding.btnConcretarCita.setOnClickListener {
             AlertDialog.Builder(requireContext())
                 .setTitle("Concretar cita")
@@ -94,20 +113,30 @@ class ChatFragment : Fragment() {
                 }
                 if (response.isSuccessful && response.body() != null) {
                     val cita = response.body()!!
-                    trabajadorNombre = cita.worker?.user?.name ?: ""
-                    trabajadorFoto = cita.worker?.picture_url
-                    receiverId = cita.worker?.user_id
-
+                    var nombre = cita.worker?.user?.profile?.name ?: cita.worker?.user?.name ?: ""
+                    var apellido = cita.worker?.user?.profile?.last_name ?: cita.worker?.user?.last_name ?: ""
+                    // Si no hay nombre ni apellido en la API, usar el argumento de navegación
+                    if (nombre.isBlank() && apellido.isBlank()) {
+                        val nombreArgs = args.trabajadorNombre ?: ""
+                        val partes = nombreArgs.trim().split(" ")
+                        // Si hay más de una palabra, la primera es el nombre y el resto es el apellido
+                        nombre = partes.firstOrNull() ?: ""
+                        apellido = if (partes.size > 1) partes.subList(1, partes.size).joinToString(" ") else ""
+                    }
+                    // Mostrar ambos juntos
+                    trabajadorNombre = listOf(nombre, apellido).filter { it.isNotBlank() }.joinToString(" ")
                     binding.tvNombreTrabajador.text = trabajadorNombre
+                    trabajadorFoto = cita.worker?.picture_url ?: args.trabajadorFotoUrl
                     Glide.with(requireContext())
                         .load(trabajadorFoto)
                         .placeholder(android.R.drawable.sym_def_app_icon)
-                        .error(android.R.drawable.sym_def_app_icon)
                         .into(binding.ivFotoTrabajador)
                 } else {
+                    android.util.Log.d("ChatDebug", "No se recibió cita o worker")
                     binding.tvNombreTrabajador.text = "Trabajador"
                 }
             } catch (e: Exception) {
+                android.util.Log.e("ChatDebug", "Error al obtener cita: ", e)
                 binding.tvNombreTrabajador.text = "Trabajador"
             }
         }

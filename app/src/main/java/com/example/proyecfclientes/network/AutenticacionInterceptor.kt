@@ -8,7 +8,6 @@ class AutenticacionInterceptor(private val tokenProvider: () -> String?) : Inter
         val originalRequest = chain.request()
         val token = tokenProvider()
 
-        // Solo agrega el header si el token existe
         val requestBuilder = originalRequest.newBuilder()
         if (!token.isNullOrEmpty()) {
             requestBuilder.addHeader("Authorization", "Bearer $token")

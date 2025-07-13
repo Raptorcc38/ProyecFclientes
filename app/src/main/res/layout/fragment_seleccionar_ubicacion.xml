@@ -14,6 +14,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- Icono de ubicación fijo en el centro -->
+    <ImageView
+        android:id="@+id/ivPinUbicacion"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@android:drawable/ic_menu_mylocation"
+        android:tint="#D32F2F"
+        android:layout_gravity="center"
+        app:layout_constraintTop_toTopOf="@id/mapView"
+        app:layout_constraintBottom_toBottomOf="@id/mapView"
+        app:layout_constraintStart_toStartOf="@id/mapView"
+        app:layout_constraintEnd_toEndOf="@id/mapView"/>
+
     <Button
         android:id="@+id/btnConfirmarUbicacion"
         android:layout_width="0dp"

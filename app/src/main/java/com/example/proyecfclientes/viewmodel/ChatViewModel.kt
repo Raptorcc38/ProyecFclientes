@@ -68,7 +68,7 @@ class ChatViewModel(
         autoUpdateJob = viewModelScope.launch {
             while (true) {
                 cargarMensajes(appointmentId)
-                delay(30_000) // cada 30 segundos
+                delay(30_000)
             }
         }
     }

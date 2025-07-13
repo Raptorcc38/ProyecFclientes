@@ -15,7 +15,6 @@ class CategoriasViewModel(application: Application) : AndroidViewModel(applicati
 
     fun cargarCategorias() {
         viewModelScope.launch {
-            // OBTENER EL TOKEN DESDE LAS PREFERENCIAS
             val token = Preferencias.getToken(getApplication<Application>().applicationContext)
             val response = repo.getCategorias(token ?: "")
 

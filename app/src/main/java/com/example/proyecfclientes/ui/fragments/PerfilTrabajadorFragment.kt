@@ -31,22 +31,24 @@ class PerfilTrabajadorFragment : Fragment() {
         val factory = PerfilTrabajadorViewModelFactory(requireActivity().application, repositorioCitas)
         viewModel = ViewModelProvider(this, factory)[PerfilTrabajadorViewModel::class.java]
 
-        // Configurar RecyclerView de reseñas
+
         val resenasAdapter = ResenasAdapter(emptyList())
         binding.recyclerViewResenas.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerViewResenas.adapter = resenasAdapter
 
-        // Cargar detalle del trabajador
+
         val trabajadorId = args.trabajador.id ?: 0
         viewModel.cargarDetalleTrabajador(trabajadorId)
 
         viewModel.detalleTrabajador.observe(viewLifecycleOwner) { detalle ->
             if (detalle != null) {
-                val nombre = detalle.user?.name ?: ""
-                val apellido = detalle.user?.last_name ?: ""
-                binding.tvNombrePerfil.text = "$nombre $apellido"
-                binding.tvCalificacionPerfil.text = "Calificación: ${detalle.average_rating ?: "Sin calificación"}"
-                binding.tvTrabajosPerfil.text = "Trabajos realizados: ${detalle.reviews_count ?: 0}"
+                // Usar el apellido desde user.profile si existe, si no, usar el campo directo
+                val nombre = detalle.user?.profile?.name ?: detalle.user?.name ?: ""
+                val apellido = detalle.user?.profile?.last_name ?: detalle.user?.last_name ?: ""
+                val nombreCompleto = listOf(nombre, apellido).filter { it.isNotBlank() }.joinToString(" ")
+                binding.tvNombrePerfil.text = nombreCompleto
+                binding.tvCalificacionPerfil.text = "Calificación: "+ (detalle.average_rating ?: "Sin calificación")
+                binding.tvTrabajosPerfil.text = "Trabajos realizados: "+ (detalle.reviews_count ?: 0)
                 val profesiones = detalle.categories?.joinToString(", ") { it.name } ?: "Sin profesiones"
                 binding.tvProfesionesPerfil.text = "Profesiones: $profesiones"
                 val foto = if (detalle.picture_url.isNullOrEmpty() || detalle.picture_url == "null") null else detalle.picture_url
@@ -59,7 +61,7 @@ class PerfilTrabajadorFragment : Fragment() {
             }
         }
 
-        // Botón de "Contactar"
+
         binding.btnContactar.setOnClickListener {
             val trabajadorId = args.trabajador.id ?: 0
             val categoriaId = args.categoriaId
@@ -68,8 +70,9 @@ class PerfilTrabajadorFragment : Fragment() {
 
         viewModel.citaCreada.observe(viewLifecycleOwner) { cita ->
             if (cita != null && cita.id != null) {
-                // Navega al chat pasando el id de la cita creada y datos del trabajador
-                val trabajadorNombre = args.trabajador.user?.name + " " + (args.trabajador.user?.last_name ?: "")
+                val nombre = args.trabajador.user?.profile?.name ?: args.trabajador.user?.name ?: ""
+                val apellido = args.trabajador.user?.profile?.last_name ?: args.trabajador.user?.last_name ?: ""
+                val trabajadorNombre = listOf(nombre, apellido).filter { it.isNotBlank() }.joinToString(" ")
                 val trabajadorFotoUrl = args.trabajador.picture_url ?: ""
                 val trabajadorUserId = args.trabajador.user?.id ?: 0
 

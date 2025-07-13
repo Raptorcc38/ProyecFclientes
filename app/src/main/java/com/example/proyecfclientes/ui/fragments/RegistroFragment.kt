@@ -1,4 +1,3 @@
-// ui/fragments/RegistroFragment.kt
 package com.example.proyecfclientes.ui.fragments
 
 import android.os.Bundle

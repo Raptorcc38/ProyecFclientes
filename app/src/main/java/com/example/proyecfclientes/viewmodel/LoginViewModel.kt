@@ -35,14 +35,14 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             val response = repo.loginCliente(LoginRequest(email, password))
             if (response.isSuccessful) {
                 response.body()?.access_token?.let { token ->
-                    // Guarda el token en Preferencias (persistente)
+
                     val userId = extraerUserIdDeJWT(token)
                     if (userId != null) {
                         Preferencias.guardarTokenYUserId(getApplication(), token, userId)
                     } else {
                         Preferencias.guardarToken(getApplication(), token)
                     }
-                    // También actualiza el TokenManager (en memoria)
+
                     TokenManager.token = token
                 }
             }

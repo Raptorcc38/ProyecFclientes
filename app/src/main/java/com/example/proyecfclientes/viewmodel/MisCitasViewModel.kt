@@ -20,7 +20,7 @@ class MisCitasViewModel(
     val error = MutableLiveData<String?>()
     val resultadoConcretar = MutableLiveData<Response<Cita>?>()
 
-    // Obtener todas las citas del cliente con token automáticamente
+
     fun cargarCitas() {
         viewModelScope.launch {
             try {
@@ -39,7 +39,7 @@ class MisCitasViewModel(
         }
     }
 
-    // Concretar cita
+
     fun concretarCita(token: String, citaId: Int, request: ConcretarCitaRequest) {
         viewModelScope.launch {
             try {

@@ -91,13 +91,13 @@
             android:name="trabajadorId"
             app:argType="integer"
             android:defaultValue="0" />
-        <!-- Aquí va la nueva acción directa a SeleccionarUbicacionFragment -->
+
         <action
             android:id="@+id/action_chatFragment_to_seleccionarUbicacionFragment"
             app:destination="@id/seleccionarUbicacionFragment" />
     </fragment>
 
-    <!-- Fragmento de selección de ubicación en mapa -->
+
     <fragment
         android:id="@+id/seleccionarUbicacionFragment"
         android:name="com.example.proyecfclientes.ui.fragments.SeleccionarUbicacionFragment"
@@ -110,7 +110,7 @@
             app:destination="@id/seleccionarFechaHoraFragment" />
     </fragment>
 
-    <!-- Fragmento para elegir fecha y hora -->
+
     <fragment
         android:id="@+id/seleccionarFechaHoraFragment"
         android:name="com.example.proyecfclientes.ui.fragments.SeleccionarFechaHoraFragment"

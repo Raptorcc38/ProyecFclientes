@@ -2,4 +2,6 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="mensaje_cliente">#D0F5D8</color> <!-- Verde claro -->
+    <color name="mensaje_trabajador">#FFF9C4</color> <!-- Amarillo claro -->
 </resources>

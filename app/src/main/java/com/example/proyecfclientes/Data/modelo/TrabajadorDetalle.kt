@@ -2,7 +2,6 @@ package com.example.proyecfclientes.Data.modelo
 
 import java.io.Serializable
 
-// Modelo para la respuesta de /workers/{id}
 data class TrabajadorDetalle(
     val id: Int?,
     val user_id: Int?,

@@ -1,4 +1,3 @@
-// ui/fragments/LoginFragment.kt
 package com.example.proyecfclientes.ui.fragments
 import android.content.Context
 import android.os.Bundle
@@ -44,11 +43,11 @@ class LoginFragment : Fragment() {
             if (response.isSuccessful && response.body() != null) {
                 val token = response.body()?.access_token
                 if (token != null) {
-                    // Guardar el token en SharedPreferences
+
                     val prefs = requireContext().getSharedPreferences("prefs", Context.MODE_PRIVATE)
                     prefs.edit().putString("access_token", token).apply()
                 }
-                // Navegar a la pantalla principal
+
                 findNavController().navigate(R.id.action_loginFragment_to_categoriasFragment)
             } else {
                 Toast.makeText(
